@@ -1,48 +1,54 @@
-# SurviveGA - evolutionary simulation through genetic algorithms
+# SurviveGA – Evolutionary Simulation Through Genetic Algorithms
 
-SurviveGA is a research project developed as part of the MSc Computer Games Technology program at Abertay University in Dundee, within the class MAT501 – Applied Mathematics and Artificial Intelligence.
+SurviveGA is a research project developed as part of the **MSc Computer Games Technology** program at **Abertay University**, within the module **MAT501 – Applied Mathematics and Artificial Intelligence**.
 
-Project Description
-SurviveGA is an evolutionary simulation platform that models the emergence of survival behaviors through genetic algorithms and natural selection principles. The system simulates a population of autonomous agents that must learn to navigate complex environments containing beneficial resources, hazardous zones, and dangerous obstacles—all without explicit programming of survival strategies.
+---
 
-Core Concept
-At its foundation, SurviveGA explores how simple organisms can evolve sophisticated survival behaviors over multiple generations through the mechanisms of:
+## Project Description
 
-Selection pressure from environmental hazards and resource availability
+**SurviveGA** is an evolutionary simulation platform designed to model the emergence of survival behaviours using **genetic algorithms** and **natural selection** principles.  
+The system simulates a population of autonomous agents that must learn to navigate an environment containing beneficial resources, hazardous zones, and dangerous obstacles—without being explicitly programmed with survival strategies.
 
-Genetic crossover combining successful traits from parent agents
+---
 
-Random mutation introducing behavioral diversity
+## Core Concept
 
-Elitism preserving the most successful adaptations
+SurviveGA examines how simple organisms can evolve increasingly sophisticated survival behaviours across generations through:
 
-Unlike traditional pathfinding or navigation systems, agents are not given explicit instructions on how to survive. Instead, each agent possesses a unique genetic code—a sequence of movement directions—that determines its behavior throughout its lifetime. Agents that successfully locate food while avoiding dangers achieve higher fitness scores, making them more likely to pass their genetic traits to subsequent generations.
+- **Selection pressure** from hazards and resource availability  
+- **Genetic crossover** that combines successful traits from parents  
+- **Random mutation** introducing behavioural diversity  
+- **Elitism** preserving the most successful agents  
 
-Evolutionary Mechanics
-The simulation operates on generational cycles where:
+Agents do not receive direct instructions. Each agent carries a **genetic sequence** encoding its movement patterns. Agents that locate food and avoid danger achieve higher fitness scores, increasing their likelihood of passing on their traits.
 
-A population of agents executes behaviors encoded in their DNA
+---
 
-Fitness scores accumulate based on interactions with the environment
+## Evolutionary Mechanics
 
-High-performing agents are selected as parents for the next generation
+The simulation proceeds in generational cycles:
 
-Offspring inherit genetic material through two-point crossover
+1. Agents perform behaviours determined by their DNA.  
+2. Fitness scores accumulate based on environmental interactions.  
+3. High-performing agents are selected as parents.  
+4. Offspring inherit genetic material through **two-point crossover**.  
+5. **Random mutations** introduce new behaviours and prevent local optima.  
 
-Random mutations introduce novel behaviors and prevent local optima
+Through repeated cycles, increasingly effective survival strategies emerge naturally.
 
-The cycle repeats, allowing complex survival strategies to emerge
+---
 
-Research Applications
-SurviveGA serves as a testbed for studying:
+## Research Applications
 
-Emergent behavior arising from simple rules and selection pressure
+SurviveGA provides a controlled environment for studying:
 
-Adaptive strategies in multi-objective environments (approach food, avoid danger)
+- **Emergent behaviour** arising from simple rules and selective pressure  
+- **Adaptive strategies** in multi-objective environments  
+- **Population dynamics**, including exploration, exploitation, and convergence  
+- **Evolutionary optimisation** of survival behaviours  
 
-Population dynamics and the balance between exploration and exploitation
+---
 
-Evolutionary convergence toward optimal survival behaviors
 
 The role of mutation rates in maintaining population diversity
 
