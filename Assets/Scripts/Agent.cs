@@ -30,10 +30,10 @@ public class Agent : MonoBehaviour
     {
         if (other.CompareTag("food"))
         {
-            _dna.fitness += 10f;
+            _dna.fitness += 50f;
         } else if (other.CompareTag("negative"))
         {
-            _dna.fitness -= 10f;
+            _dna.fitness -= 100f;
         }
     }
 

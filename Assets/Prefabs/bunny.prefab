@@ -83,7 +83,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 3351603917382484f8cfe83e1916d822, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a223b20f842a24995ad78f14fdb897b9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,8 +106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca9922d2f7d9453698a2c452e355014, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Agent
-  dna: {fileID: 5163478311821523807}
-  speed: 3
 --- !u!114 &5163478311821523807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,9 +118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36e1e87d48bcb4257b18f1a218ee837a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DNA
-  moveX: 0
-  moveY: 0
+  directions: []
+  stepSize: 0
+  energy: 0
   fitness: 0
+  movesTaken: []
 --- !u!61 &-3361626177385909633
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -161,7 +161,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.86041665, y: 1.2604166}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
