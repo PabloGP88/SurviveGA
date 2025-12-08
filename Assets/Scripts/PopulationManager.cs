@@ -16,6 +16,7 @@ public class PopulationManager : MonoBehaviour
     [Header("Genetic Algorithm Settings")]
     [SerializeField] private float mutationRate = 0.05f;
     [SerializeField] private int eliteCount = 2;
+    [SerializeField] private GameObject[] foods;
     
     private List<GameObject> _population = new List<GameObject>();
     private int _currentGeneration = 1;
@@ -71,7 +72,7 @@ public class PopulationManager : MonoBehaviour
             
             Dna bestDna = _population[i].GetComponent<Dna>();
             eliteDna.stepSize = bestDna.stepSize;
-            System.Array.Copy(bestDna.directions, eliteDna.directions, eliteDna.directions.Length);
+            System.Array.Copy(bestDna.weights, eliteDna.weights, eliteDna.weights.Length);
             eliteDna.fitness = 0;
             
             elite.GetComponent<SpriteRenderer>().color = Color.cyan;
@@ -97,7 +98,13 @@ public class PopulationManager : MonoBehaviour
         {
             Destroy(agent);
         }
-        
+
+
+        foreach (GameObject food in foods)
+        {
+            food.GetComponent<Food>().Reset(); 
+            food.SetActive(true);
+        }
         _population = newPopulation;
         _currentGeneration++;
         _timer = 0f;
@@ -125,7 +132,7 @@ public class PopulationManager : MonoBehaviour
         return best;
     }
     
-    // UNIFORM CROSSOVER 
+    // Homogeneous CROSSOVER 
     // ReSharper disable Unity.PerformanceAnalysis
     private GameObject Crossover(GameObject parent1, GameObject parent2)
     {
@@ -137,11 +144,12 @@ public class PopulationManager : MonoBehaviour
         Dna parent2Dna = parent2.GetComponent<Dna>();
         
         // each gene has 50% chance from each parent
-        for (int j = 0; j < childDna.directions.Length; j++)
+        for (int j = 0; j < childDna.weights.Length; j++)
         {
-            childDna.directions[j] = (Random.value < 0.5f) 
-                ? parent1Dna.directions[j] 
-                : parent2Dna.directions[j];
+            float r =  Random.Range(0f, 1f);
+            childDna.weights[j] = ( j%2 == 0)
+                ? parent1Dna.weights[j] 
+                : parent2Dna.weights[j];
         }
         
         childDna.stepSize = (Random.value < 0.5f) ? parent1Dna.stepSize : parent2Dna.stepSize;
@@ -162,9 +170,10 @@ public class PopulationManager : MonoBehaviour
                          $"Time: {generationTime - _timer:F1}s\n" +
                          $"Best Fitness (Current): {currentBestFitness:F1}\n" +
                          $"Best Fitness (Last Gen): {_bestFitnessLastGen:F1}\n" +
+                         $"Weights : {_population[0].GetComponent<Dna>().weights[0]}\n" +
                          $"Avg Fitness (Last Gen): {_averageFitnessLastGen:F1}\n" +
                          $"Population Size: {populationSize}\n" +
-                         $"Speed x{_speedSlider.value:F1}";
+                         $"Speed x{_speedSlider.value:F1}"; 
 
         Time.timeScale = _speedSlider.value;
     }
