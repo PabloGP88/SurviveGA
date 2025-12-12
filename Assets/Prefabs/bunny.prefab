@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 5747342947868890718}
   - component: {fileID: 8510737642448098251}
   - component: {fileID: 1800761911031464589}
-  - component: {fileID: 5163478311821523807}
   - component: {fileID: -3361626177385909633}
+  - component: {fileID: 851987348232471460}
   - component: {fileID: 3515128656967418607}
   m_Layer: 6
   m_Name: bunny
@@ -106,32 +106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca9922d2f7d9453698a2c452e355014, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Agent
---- !u!114 &5163478311821523807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6732364186506881530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 36e1e87d48bcb4257b18f1a218ee837a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DNA
-  stepSize: 0
-  weights:
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  health: 100
-  hunger: 0
-  fitness: 0
-  movesTaken: []
 --- !u!61 &-3361626177385909633
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -178,6 +152,34 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &851987348232471460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6732364186506881530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36e1e87d48bcb4257b18f1a218ee837a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Dna
+  stepSize: 0
+  visionDirections:
+  - {x: 0, y: 1}
+  - {x: 0.70710677, y: 0.70710677}
+  - {x: -0.70710677, y: 0.70710677}
+  - {x: 1, y: 0}
+  - {x: 0.70710677, y: -0.70710677}
+  - {x: -1, y: 0}
+  - {x: -0.70710677, y: -0.70710677}
+  - {x: 0, y: -1}
+  visionRange: 5
+  health: 0
+  hunger: 0
+  fitness: 0
+  inputSize: 0
+  movesTaken: []
 --- !u!50 &3515128656967418607
 Rigidbody2D:
   serializedVersion: 5
