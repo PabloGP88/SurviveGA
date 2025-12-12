@@ -8,7 +8,7 @@ public class Agent : MonoBehaviour
     private float hungerDecay = 5f;
     private float healthDecreaseRate = 10f;
     private float timer = 0f;
-    private float timeToMove = 0.1f; // SECONDS
+    private float timeToMove = 0.01f; // SECONDS
 
     private Vector2 moveDirection;
     
@@ -25,8 +25,7 @@ public class Agent : MonoBehaviour
         if (!isActive)
             return;
 
-        timer += Time.deltaTime;
-        dna.fitness += 0.1f * Time.deltaTime;        
+        timer += Time.fixedDeltaTime;
         HealthManagement();
     
         if (timer >= timeToMove)
@@ -40,10 +39,6 @@ public class Agent : MonoBehaviour
                 visionData[1], 
                 visionData[2],
                 visionData[3],
-                visionData[4],
-                visionData[5],
-                visionData[6],
-                visionData[7],
                 dna.hunger / 100,
                 dna.health / 100
             };
@@ -117,7 +112,13 @@ public class Agent : MonoBehaviour
 
     private void HealthManagement()
     {
-        dna.hunger -= hungerDecay * Time.deltaTime;
+        dna.hunger -= hungerDecay * Time.fixedDeltaTime;
+
+        if (dna.health > 0)
+        {
+            dna.fitness += 0.5f * Time.fixedDeltaTime; 
+        }
+        
         if (dna.hunger <= 0f)
         {
             dna.hunger = 0f;
@@ -125,12 +126,12 @@ public class Agent : MonoBehaviour
 
         if (dna.hunger < dna.GetMaxHunger()/2)
         {
-            dna.health -= healthDecreaseRate * Time.deltaTime;
+            dna.health -= healthDecreaseRate * Time.fixedDeltaTime;
         }
 
         if (dna.health <= 0)
         {
-            dna.fitness -= 10;
+            dna.fitness -= 100;
             isActive = false;
             gameObject.GetComponent<SpriteRenderer>().color = Color.red;
         }
@@ -140,7 +141,7 @@ public class Agent : MonoBehaviour
     {
         dna.hunger += 100f;
         dna.health += 100f;
-        dna.fitness += 10f;
+        dna.fitness += 50f;
 
         if (dna.hunger > dna.GetMaxHunger())
         {
@@ -173,7 +174,7 @@ public class Agent : MonoBehaviour
     private void InstaDead()
     {
         dna.health = 0f;   
-        dna.fitness -= 10;
+        dna.fitness -= 100;
     }
     
     public void ResetAgent()

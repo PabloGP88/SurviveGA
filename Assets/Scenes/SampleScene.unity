@@ -167,7 +167,7 @@ MonoBehaviour:
   badFood: {fileID: 5282429046808688454, guid: 727889f9f9c5c4e86a1182db102eb5a2, type: 3}
   foodParent: {fileID: 28582888}
   amountGood: 25
-  amountBad: 5
+  amountBad: 0
   xRange: {x: 11, y: -11}
   yRange: {x: 3, y: 10}
 --- !u!1 &99590675
@@ -14290,13 +14290,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PopulationManager
   agentPrefab: {fileID: 6732364186506881530, guid: e6ada955ef8884ba78047ac1b200b916, type: 3}
-  populationSize: 50
+  populationSize: 100
   spawnPosition: {fileID: 968107395}
-  generationTime: 60
+  generationTime: 30
   debugText: {fileID: 1653391735}
   _speedSlider: {fileID: 256429488}
-  mutationRate: 0.008
-  eliteCount: 5
+  mutationRate: 0.05
+  eliteCount: 2
 --- !u!4 &968107395
 Transform:
   m_ObjectHideFlags: 0

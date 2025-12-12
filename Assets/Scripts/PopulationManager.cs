@@ -176,6 +176,7 @@ public class PopulationManager : MonoBehaviour
                          $"Speed x{_speedSlider.value:F1}"; 
 
         Time.timeScale = _speedSlider.value;
+        
     }
     
     private void ExportData()

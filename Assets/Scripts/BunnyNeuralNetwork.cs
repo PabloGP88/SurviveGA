@@ -148,7 +148,7 @@ public class BunnyNeuralNetwork
         {
             for (int j = 0; j < hiddenSize; j++)
             {
-                W1[i, j] = (Random.value < 0.5f) ? parent1.W1[i, j] : parent2.W1[i, j];
+                W1[i, j] = (Random.value < 0.5) ? parent1.W1[i, j] : parent2.W1[i, j];
             }
         }
         

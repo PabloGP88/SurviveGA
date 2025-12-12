@@ -9,15 +9,10 @@ public class Dna : MonoBehaviour
     
     public static readonly Vector2[] possibleDirections = new Vector2[]
     {
-        Vector2.zero, 
         Vector2.up,                     // Up
         Vector2.down,                   // Down
         Vector2.left,                   // Left
         Vector2.right,                  // Right
-        new Vector2(1, 1).normalized,   // Up-Right
-        new Vector2(-1, 1).normalized,  // Up-Left
-        new Vector2(1, -1).normalized,  // Down-Right
-        new Vector2(-1, -1).normalized  // Down-Left
     };
     
     public Vector2[] visionDirections = new Vector2[]
@@ -51,13 +46,13 @@ public class Dna : MonoBehaviour
     
     public void InitData()
     {
-        stepSize = 0.2f;
+        stepSize = 0.1f;
         fitness = 0;
         health = MAX_HEALTH;
         hunger = MAX_HUNGER;
     
         inputSize = visionDirections.Length + 2; 
-        int hiddenSize = 16; 
+        int hiddenSize = 6; 
         int outputSize = possibleDirections.Length;
 
 
