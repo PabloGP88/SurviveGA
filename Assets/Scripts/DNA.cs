@@ -40,13 +40,13 @@ public class Dna : MonoBehaviour
         }
     }
     
-    public void CalculateFitness(int _moveIndex)
+    public void CalculateFitness(int moveIndex)
     {
         fitness = 0f;
         
         // reward food eating and surviving longer
         fitness += foodEaten * 10f;
-        fitness += (_moveIndex / 100f) * 10f;
+        fitness += moveIndex / 10f;
         
         // Reward getting food early to avoid none sense movement 
         if (firstFood)
@@ -55,7 +55,7 @@ public class Dna : MonoBehaviour
             fitness += efficiencyBonus;
         }
         
-        if (_moveIndex >= directions.Length)
+        if (moveIndex >= directions.Length)
         {
             fitness += 30f; 
         }

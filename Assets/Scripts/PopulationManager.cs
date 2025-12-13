@@ -195,7 +195,7 @@ public class PopulationManager : MonoBehaviour
         }
 
     }
-    // Getters for UI/Settings
+
     public int GetCurrentGeneration() => _currentGeneration;
     
     public float GetTimeRemaining() => generationTime - _timer;
@@ -210,7 +210,6 @@ public class PopulationManager : MonoBehaviour
     
     public void ToggleEliteOnly(bool showOnlyElites)
     {
-        print(1);
         foreach (GameObject agent in _population)
         {
             Dna dna = agent.GetComponent<Dna>();
@@ -236,7 +235,7 @@ public class PopulationManager : MonoBehaviour
         using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filepath))
         {
             // Write simulation parameters
-            writer.WriteLine("=== SIMULATION PARAMETERS ===");
+            writer.WriteLine("SIMULATION PARAMETERS");
             writer.WriteLine($"Population Size,{populationSize}");
             writer.WriteLine($"Mutation Rate,{mutationRate}");
             writer.WriteLine($"Generation Time (seconds),{generationTime}");
@@ -244,7 +243,7 @@ public class PopulationManager : MonoBehaviour
             writer.WriteLine();
             
             // Write generation data header
-            writer.WriteLine("=== GENERATION DATA ===");
+            writer.WriteLine("GENERATION DATA");
             writer.WriteLine("Generation,Best Fitness,Average Fitness");
             
             // Write each generation's data
