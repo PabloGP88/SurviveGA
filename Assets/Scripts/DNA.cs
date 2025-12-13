@@ -33,38 +33,35 @@ public class Dna : MonoBehaviour
         {
             if (Random.value < mutationRate)
             {
-                // Slightly modify the direction 
-                Vector2 mutation = new Vector2(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f));
+                Vector2 mutation = new Vector2(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
                 directions[i] = (directions[i] + mutation).normalized;
             }
         }
     }
     
-    public void CalculateFitness()
+    public void CalculateFitness(int _moveIndex)
     {
         fitness = 0f;
         
-        // Reward for total food eaten (primary objective)
+        // reward food eating and surviving longer
         fitness += foodEaten * 10f;
+        fitness += (_moveIndex / 100f) * 10f;
         
-        // Bonus for finding food quickly (efficiency reward)
+        // Reward getting food early to avoid none sense movement 
         if (firstFood)
         {
-            // The earlier they find food, the higher the bonus (max 5 points if found immediately)
-            float efficiencyBonus = Mathf.Max(0, 5f - (stepsToFirstFood / 600f));
+            float efficiencyBonus = Mathf.Max(0, 10f - (stepsToFirstFood / 60f));
             fitness += efficiencyBonus;
         }
         
-        // Extra bonus for eating multiple foods (rewards sustained foraging)
-        if (foodEaten > 1)
+        if (_moveIndex >= directions.Length)
         {
-            fitness += (foodEaten - 1) * 2f; // Exponential-ish growth for multiple foods
+            fitness += 30f; 
         }
         
-        // Small penalty if no food was found at all (encourages exploration)
         if (foodEaten == 0)
         {
-            fitness -= 2f;
+            fitness -= 30f;
         }
     }
 

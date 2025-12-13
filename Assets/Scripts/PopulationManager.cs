@@ -1,17 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PopulationManager : MonoBehaviour
 {
     [SerializeField] private GameObject agentPrefab;
+    [SerializeField] private Predator[] predators;
     [SerializeField] private int populationSize;
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private float generationTime = 60f;
-    [SerializeField] private TextMeshProUGUI debugText;
-    [SerializeField] private Slider _speedSlider;
     
     [Header("Genetic Algorithm Settings")]
     [SerializeField] private float mutationRate = 0.05f;
@@ -25,9 +22,7 @@ public class PopulationManager : MonoBehaviour
 
     private void Start()
     {
-        _speedSlider.value = Time.timeScale;
         CreatePopulation();
-        UpdateDebugText();
     }
 
     private void Update()
@@ -38,8 +33,6 @@ public class PopulationManager : MonoBehaviour
         {
             NextGeneration();
         }
-        
-        UpdateDebugText();
     }
 
     private void CreatePopulation()
@@ -58,7 +51,7 @@ public class PopulationManager : MonoBehaviour
         // Calculate fitness for all agents based on their performance
         foreach (GameObject agent in _population)
         {
-            agent.GetComponent<Dna>().CalculateFitness();
+            agent.GetComponent<Dna>().CalculateFitness(agent.GetComponent<Agent>().GetTotalMoves());
         }
         
         // Sort by fitness
@@ -97,12 +90,8 @@ public class PopulationManager : MonoBehaviour
             
             newPopulation.Add(child);
         }
-        
-        // Clean up old population
-        foreach (GameObject agent in _population)
-        {
-            Destroy(agent);
-        }
+
+        Clean();
         
         _population = newPopulation;
         _currentGeneration++;
@@ -131,7 +120,6 @@ public class PopulationManager : MonoBehaviour
         return best;
     }
     
-    // UNIFORM CROSSOVER 
     // ReSharper disable Unity.PerformanceAnalysis
     private GameObject Crossover(GameObject parent1, GameObject parent2)
     {
@@ -142,33 +130,66 @@ public class PopulationManager : MonoBehaviour
         Dna parent1Dna = parent1.GetComponent<Dna>();
         Dna parent2Dna = parent2.GetComponent<Dna>();
         
-        int split = Random.Range(0, childDna.directions.Length);
+        int length = childDna.directions.Length;  
         
-        for (int j = 0; j < childDna.directions.Length; j++)
+        int point1 = Random.Range(0, length);
+        int point2 = Random.Range(0, length);
+        
+        if (point1 > point2)
         {
-            childDna.directions[j] = (Random.value < 0.5) 
-                ? parent1Dna.directions[j] 
-                : parent2Dna.directions[j];
+            (point1, point2) = (point2, point1);
+        }
+        
+        for (int j = 0; j < length; j++)
+        {
+            if (j >= point1 && j <= point2)
+            {
+                // Between crossover points â†’ take from parent1
+                childDna.directions[j] = parent1Dna.directions[j];
+            }
+            else
+            {
+                // Outside crossover points â†’ take from parent2
+                childDna.directions[j] = parent2Dna.directions[j];
+            }
         }
         
         return child;
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
-    private void UpdateDebugText()
+    private void Clean()
     {
-        float currentBestFitness = _population.Count > 0 
+        // Clean up old population
+        foreach (GameObject agent in _population)
+        {
+            Destroy(agent);
+        }
+
+        if (predators.Length > 0)
+        {
+            // Reset Predators
+            foreach (Predator predator in predators)
+            {
+                predator.Reset();
+            }
+        }
+
+    }
+    // Getters for UI/Settings
+    public int GetCurrentGeneration() => _currentGeneration;
+    
+    public float GetTimeRemaining() => generationTime - _timer;
+    
+    public float GetCurrentBestFitness()
+    {
+        return _population.Count > 0 
             ? _population.Max(a => a.GetComponent<Dna>().fitness) 
             : 0f;
-        
-        debugText.text = $"Generation: {_currentGeneration}\n" +
-                         $"Time: {generationTime - _timer:F1}s\n" +
-                         $"Best Fitness (Current): {currentBestFitness:F1}\n" +
-                         $"Best Fitness (Last Gen): {_bestFitnessLastGen:F1}\n" +
-                         $"Avg Fitness (Last Gen): {_averageFitnessLastGen:F1}\n" +
-                         $"Population Size: {populationSize}\n" +
-                         $"Speed x{_speedSlider.value:F1}";
-
-        Time.timeScale = _speedSlider.value;
     }
+    
+    public float GetBestFitnessLastGen() => _bestFitnessLastGen;
+    
+    public float GetAverageFitnessLastGen() => _averageFitnessLastGen;
+    
+    public int GetPopulationSize() => populationSize;
 }

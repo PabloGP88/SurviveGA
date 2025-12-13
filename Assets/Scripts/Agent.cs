@@ -20,6 +20,7 @@ public class Agent : MonoBehaviour
         if (!_isActive) return;
 
         _stepTimer += Time.deltaTime;
+        
         if (_stepTimer >= stepDuration)
         {
             _stepTimer = 0f;
@@ -50,17 +51,20 @@ public class Agent : MonoBehaviour
             
         } else if (other.CompareTag("negative"))
         {
-            _dna.fitness -= 0.5f;
+            _dna.fitness -= 50f;
             _isActive = false;
             GetComponent<SpriteRenderer>().color = Color.red;
         }
         else if (other.CompareTag("poisson"))
         {
-            _dna.fitness -= 0.2f;
+            _dna.fitness -= 1f;
         }
     }
-    
 
+    public int GetTotalMoves()
+    {
+        return _moveIndex;
+    }
     public void ResetAgent()
     {
         _moveIndex = 0;
