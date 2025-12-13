@@ -13,6 +13,7 @@ public class Dna : MonoBehaviour
 
     public int stepsToFirstFood = 0;
     public bool firstFood = false;
+    public bool isElite = false;
     
     public List<Vector2> movesTaken = new List<Vector2>();
     public void InitData()

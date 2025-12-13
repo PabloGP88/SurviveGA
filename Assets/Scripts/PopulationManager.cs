@@ -74,6 +74,7 @@ public class PopulationManager : MonoBehaviour
             eliteDna.fitness = 0;
             
             elite.GetComponent<SpriteRenderer>().color = Color.cyan;
+            eliteDna.isElite = true;
             
             newPopulation.Add(elite);
         }
@@ -144,12 +145,12 @@ public class PopulationManager : MonoBehaviour
         {
             if (j >= point1 && j <= point2)
             {
-                // Between crossover points â†’ take from parent1
+                // Between crossover points Ã¢â€ â€™ take from parent1
                 childDna.directions[j] = parent1Dna.directions[j];
             }
             else
             {
-                // Outside crossover points â†’ take from parent2
+                // Outside crossover points Ã¢â€ â€™ take from parent2
                 childDna.directions[j] = parent2Dna.directions[j];
             }
         }
@@ -192,4 +193,23 @@ public class PopulationManager : MonoBehaviour
     public float GetAverageFitnessLastGen() => _averageFitnessLastGen;
     
     public int GetPopulationSize() => populationSize;
+    
+    public void ToggleEliteOnly(bool showOnlyElites)
+    {
+        print(1);
+        foreach (GameObject agent in _population)
+        {
+            Dna dna = agent.GetComponent<Dna>();
+            SpriteRenderer sr = agent.GetComponent<SpriteRenderer>();
+            
+            if (showOnlyElites)
+            {
+                sr.enabled = dna.isElite;
+            }
+            else
+            {
+                sr.enabled = true;
+            }
+        }
+    }
 }
