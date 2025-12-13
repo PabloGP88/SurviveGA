@@ -55,6 +55,12 @@ public class PopulationManager : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     private void NextGeneration()
     {
+        // Calculate fitness for all agents based on their performance
+        foreach (GameObject agent in _population)
+        {
+            agent.GetComponent<Dna>().CalculateFitness();
+        }
+        
         // Sort by fitness
         _population = _population.OrderByDescending(a => a.GetComponent<Dna>().fitness).ToList();
         _bestFitnessLastGen = _population[0].GetComponent<Dna>().fitness;
@@ -105,7 +111,7 @@ public class PopulationManager : MonoBehaviour
     
     // Tournament selection: pick best from random sample
     // ReSharper disable Unity.PerformanceAnalysis
-    private GameObject TournamentSelection(int tournamentSize = 5)
+    private GameObject TournamentSelection(int tournamentSize = 4)
     {
         GameObject best = _population[Random.Range(0, _population.Count)];
         float bestFitness = best.GetComponent<Dna>().fitness;
@@ -136,17 +142,14 @@ public class PopulationManager : MonoBehaviour
         Dna parent1Dna = parent1.GetComponent<Dna>();
         Dna parent2Dna = parent2.GetComponent<Dna>();
         
-        // each gene has 50% chance from each parent
+        int split = Random.Range(0, childDna.directions.Length);
+        
         for (int j = 0; j < childDna.directions.Length; j++)
         {
-            childDna.directions[j] = (Random.value < 0.5f) 
+            childDna.directions[j] = (Random.value < 0.5) 
                 ? parent1Dna.directions[j] 
                 : parent2Dna.directions[j];
         }
-        
-        childDna.stepSize = (Random.value < 0.5f) ? parent1Dna.stepSize : parent2Dna.stepSize;
-        
-        
         
         return child;
     }
@@ -169,4 +172,3 @@ public class PopulationManager : MonoBehaviour
         Time.timeScale = _speedSlider.value;
     }
 }
-

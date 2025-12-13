@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3800631674893255713}
   m_Layer: 7
   m_Name: Poisson Food
-  m_TagString: negative
+  m_TagString: poisson
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
