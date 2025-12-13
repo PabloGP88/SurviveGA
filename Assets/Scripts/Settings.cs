@@ -29,6 +29,11 @@ public class Settings : MonoBehaviour
         {
             _eliteToggle.onValueChanged.AddListener(populationManager.ToggleEliteOnly);
         }
+        
+        if (_exportCSV != null)
+        {
+            _exportCSV.onClick.AddListener(OnExportCSVClicked);
+        }
     }
 
     private void Update()
@@ -54,10 +59,10 @@ public class Settings : MonoBehaviour
         {
             debugText.text = $"Generation: {populationManager.GetCurrentGeneration()}\n" +
                              $"Time: {populationManager.GetTimeRemaining():F1}s\n" +
-                             $"Best Fitness (Current): {populationManager.GetCurrentBestFitness():F1}\n" +
                              $"Best Fitness (Last Gen): {populationManager.GetBestFitnessLastGen():F1}\n" +
                              $"Avg Fitness (Last Gen): {populationManager.GetAverageFitnessLastGen():F1}\n" +
                              $"Population Size: {populationManager.GetPopulationSize()}\n" +
+                             $"Mutation Rate: {populationManager.GetMutationRate()}\n" +
                              $"Speed x{(speedSlider != null ? speedSlider.value : Time.timeScale):F1}";
         }
     }
@@ -67,6 +72,14 @@ public class Settings : MonoBehaviour
         if (speedSlider)
         {
             Time.timeScale = speedSlider.value;
+        }
+    }
+    
+    private void OnExportCSVClicked()
+    {
+        if (populationManager != null)
+        {
+            populationManager.ExportToCSV();
         }
     }
 }

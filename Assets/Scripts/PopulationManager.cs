@@ -19,6 +19,24 @@ public class PopulationManager : MonoBehaviour
     private float _timer = 0f;
     private float _bestFitnessLastGen = 0f;
     private float _averageFitnessLastGen = 0f;
+    
+    // Track statistics for each generation
+    private List<GenerationData> _generationHistory = new List<GenerationData>();
+    
+    [System.Serializable]
+    public class GenerationData
+    {
+        public int generation;
+        public float bestFitness;
+        public float averageFitness;
+        
+        public GenerationData(int gen, float best, float avg)
+        {
+            generation = gen;
+            bestFitness = best;
+            averageFitness = avg;
+        }
+    }
 
     private void Start()
     {
@@ -58,6 +76,9 @@ public class PopulationManager : MonoBehaviour
         _population = _population.OrderByDescending(a => a.GetComponent<Dna>().fitness).ToList();
         _bestFitnessLastGen = _population[0].GetComponent<Dna>().fitness;
         _averageFitnessLastGen = _population.Average(a => a.GetComponent<Dna>().fitness);
+        
+        // Store generation data for CSV export
+        _generationHistory.Add(new GenerationData(_currentGeneration, _bestFitnessLastGen, _averageFitnessLastGen));
         
         List<GameObject> newPopulation = new List<GameObject>();
         
@@ -145,12 +166,10 @@ public class PopulationManager : MonoBehaviour
         {
             if (j >= point1 && j <= point2)
             {
-                // Between crossover points Ã¢â€ â€™ take from parent1
                 childDna.directions[j] = parent1Dna.directions[j];
             }
             else
             {
-                // Outside crossover points Ã¢â€ â€™ take from parent2
                 childDna.directions[j] = parent2Dna.directions[j];
             }
         }
@@ -181,12 +200,7 @@ public class PopulationManager : MonoBehaviour
     
     public float GetTimeRemaining() => generationTime - _timer;
     
-    public float GetCurrentBestFitness()
-    {
-        return _population.Count > 0 
-            ? _population.Max(a => a.GetComponent<Dna>().fitness) 
-            : 0f;
-    }
+    public float GetMutationRate()  => mutationRate;
     
     public float GetBestFitnessLastGen() => _bestFitnessLastGen;
     
@@ -211,5 +225,35 @@ public class PopulationManager : MonoBehaviour
                 sr.enabled = true;
             }
         }
+    }
+    
+    public void ExportToCSV()
+    {
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string filename = $"GeneticAlgorithm_Export_{timestamp}.csv";
+        string filepath = System.IO.Path.Combine(Application.dataPath, filename);
+        
+        using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filepath))
+        {
+            // Write simulation parameters
+            writer.WriteLine("=== SIMULATION PARAMETERS ===");
+            writer.WriteLine($"Population Size,{populationSize}");
+            writer.WriteLine($"Mutation Rate,{mutationRate}");
+            writer.WriteLine($"Generation Time (seconds),{generationTime}");
+            writer.WriteLine($"Elite Count,{eliteCount}");
+            writer.WriteLine();
+            
+            // Write generation data header
+            writer.WriteLine("=== GENERATION DATA ===");
+            writer.WriteLine("Generation,Best Fitness,Average Fitness");
+            
+            // Write each generation's data
+            foreach (GenerationData data in _generationHistory)
+            {
+                writer.WriteLine($"{data.generation},{data.bestFitness},{data.averageFitness}");
+            }
+        }
+        
+        Debug.Log($"CSV exported successfully to: {filepath}");
     }
 }
