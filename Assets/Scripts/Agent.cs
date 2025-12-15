@@ -28,6 +28,16 @@ public class Agent : MonoBehaviour
             if (_moveIndex < _dna.directions.Length)
             {
                 transform.Translate(_dna.directions[_moveIndex] * _dna.stepSize);
+                
+                // I am converting them to cell size so they get rewarded for exploring the world
+                
+                Vector2 pos = new Vector2(
+                    Mathf.Floor(transform.position.x/2) * 2,
+                    Mathf.Floor(transform.position.y/2) * 2
+                );
+                
+                _dna.explorationDone.Add(pos);
+                
                 _moveIndex++;
             }
             else
@@ -51,13 +61,13 @@ public class Agent : MonoBehaviour
             
         } else if (other.CompareTag("negative"))
         {
-            _dna.fitness -= 50f;
+            _dna.hasDied = true;
             _isActive = false;
             GetComponent<SpriteRenderer>().color = Color.red;
         }
         else if (other.CompareTag("poisson"))
         {
-            _dna.fitness -= 1f;
+            _dna.poissonEaten++;
         }
     }
 
@@ -65,13 +75,5 @@ public class Agent : MonoBehaviour
     {
         return _moveIndex;
     }
-    public void ResetAgent()
-    {
-        _moveIndex = 0;
-        _isActive = true;
-        _dna.fitness = 0;
-        _dna.foodEaten = 0;
-        _dna.stepsToFirstFood = 0;
-        _dna.firstFood = false;
-    }
+    
 }

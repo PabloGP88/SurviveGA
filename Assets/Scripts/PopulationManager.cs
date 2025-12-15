@@ -66,7 +66,7 @@ public class PopulationManager : MonoBehaviour
     // ReSharper disable Unity.PerformanceAnalysis
     private void NextGeneration()
     {
-        // Calculate fitness for all agents based on their performance
+        // Calculate fitness 
         foreach (GameObject agent in _population)
         {
             agent.GetComponent<Dna>().CalculateFitness(agent.GetComponent<Agent>().GetTotalMoves());
@@ -77,7 +77,7 @@ public class PopulationManager : MonoBehaviour
         _bestFitnessLastGen = _population[0].GetComponent<Dna>().fitness;
         _averageFitnessLastGen = _population.Average(a => a.GetComponent<Dna>().fitness);
         
-        // Store generation data for CSV export
+        // Store generation so I can import an excel
         _generationHistory.Add(new GenerationData(_currentGeneration, _bestFitnessLastGen, _averageFitnessLastGen));
         
         List<GameObject> newPopulation = new List<GameObject>();
@@ -179,7 +179,6 @@ public class PopulationManager : MonoBehaviour
 
     private void Clean()
     {
-        // Clean up old population
         foreach (GameObject agent in _population)
         {
             Destroy(agent);
@@ -187,7 +186,6 @@ public class PopulationManager : MonoBehaviour
 
         if (predators.Length > 0)
         {
-            // Reset Predators
             foreach (Predator predator in predators)
             {
                 predator.Reset();
