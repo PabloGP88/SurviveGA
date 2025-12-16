@@ -65,10 +65,7 @@ public class Agent : MonoBehaviour
             _isActive = false;
             GetComponent<SpriteRenderer>().color = Color.red;
         }
-        else if (other.CompareTag("poisson"))
-        {
-            _dna.poissonEaten++;
-        }
+
     }
 
     public int GetTotalMoves()

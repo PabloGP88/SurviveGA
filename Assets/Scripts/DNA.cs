@@ -65,21 +65,16 @@ public class Dna : MonoBehaviour
             stepsToFood = Mathf.Clamp01(stepsToFood);
         }
         
-        float foodValue = Mathf.Log(foodEaten + 1, 2) / 4f; 
+        float foodValue = foodEaten / 100f; 
         foodValue = Mathf.Clamp01(foodValue);
-        
-        float poissonValue = 1f - Mathf.Exp(-poissonEaten * 0.5f);
-        poissonValue = Mathf.Clamp01(poissonValue);
 
-        float survivedEating = 0;
-        
 
         float explored = Mathf.Clamp01(explorationDone.Count / 360f);
         
         // Im using a max fitness value of 100, so now I multiplied the clamp values to the 
         // importance percentage I want them to have in the final fitness
         
-        fitness =  (timeAlive * 25.0f) + (foodValue * 25.0f) + (explored * 25) + (stepsToFood * 25.0f);
+        fitness = (timeAlive * 30.0f) + (foodValue * 30.0f) + (stepsToFood * 30.0f) + (explored * 10);
     }
 
 }
