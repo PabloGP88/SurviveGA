@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 103e863f5c0347be8a512f431aaf5ec1, type: 3}
+  m_Name: Behaviors Database
+  m_EditorClassIdentifier: Febucci.TextAnimator.Runtime::Febucci.UI.Effects.AnimationsDatabase
+  data:
+  - {fileID: 11400000, guid: beac60cb0b2e44fa2a9d86bf7bcadf5c, type: 2}
+  - {fileID: 11400000, guid: e43cf82d45ca2480b8e2b8893f829b06, type: 2}
+  - {fileID: 11400000, guid: e679caf0c3bbe4a7eb5db9d347a7e217, type: 2}
+  - {fileID: 11400000, guid: 75dbb011ed4fe4e138d8fcc5c6cb660f, type: 2}
+  - {fileID: 11400000, guid: 258b9b3afe47846eab816f914ed34a8d, type: 2}
+  - {fileID: 11400000, guid: d84cb5113e9b24edeb210c90b29d3ad3, type: 2}
+  - {fileID: 11400000, guid: 0ab0eb106a91b4a5aa3f9a8978e61d94, type: 2}
+  - {fileID: 11400000, guid: 13131c8f10cfd4b6daa6c8a15025320c, type: 2}
+  - {fileID: 11400000, guid: d3f62c829a3d7427987ad2dbd1d79729, type: 2}
+  - {fileID: 11400000, guid: 4b4baa581906345318f1333f3175652e, type: 2}
+  - {fileID: 11400000, guid: e92caaafec5a54632ae65af6c82c8abc, type: 2}
+  - {fileID: 11400000, guid: 04151cc13578a473aac40d6b4f77dbec, type: 2}

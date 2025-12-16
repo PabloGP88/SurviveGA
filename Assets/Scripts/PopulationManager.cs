@@ -1,19 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Text;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PopulationManager : MonoBehaviour
 {
     [SerializeField] private GameObject agentPrefab;
+    [SerializeField] private Predator[] predators;
     [SerializeField] private int populationSize;
     [SerializeField] private Transform spawnPosition;
     [SerializeField] private float generationTime = 60f;
-    [SerializeField] private TextMeshProUGUI debugText;
-    [SerializeField] private Slider _speedSlider;
     
     [Header("Genetic Algorithm Settings")]
     [SerializeField] private float mutationRate = 0.05f;
@@ -25,15 +20,27 @@ public class PopulationManager : MonoBehaviour
     private float _bestFitnessLastGen = 0f;
     private float _averageFitnessLastGen = 0f;
     
-    // Data tracking for export
-    private List<float> _bestFitnessHistory = new List<float>();
-    private List<float> _averageFitnessHistory = new List<float>();
+    // Track statistics for each generation
+    private List<GenerationData> _generationHistory = new List<GenerationData>();
+    
+    [System.Serializable]
+    public class GenerationData
+    {
+        public int generation;
+        public float bestFitness;
+        public float averageFitness;
+        
+        public GenerationData(int gen, float best, float avg)
+        {
+            generation = gen;
+            bestFitness = best;
+            averageFitness = avg;
+        }
+    }
 
     private void Start()
     {
-        _speedSlider.value = Time.timeScale;
         CreatePopulation();
-        UpdateDebugText();
     }
 
     private void Update()
@@ -44,8 +51,6 @@ public class PopulationManager : MonoBehaviour
         {
             NextGeneration();
         }
-        
-        UpdateDebugText();
     }
 
     private void CreatePopulation()
@@ -58,26 +63,26 @@ public class PopulationManager : MonoBehaviour
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     private void NextGeneration()
     {
+        // Calculate fitness 
+        foreach (GameObject agent in _population)
+        {
+            agent.GetComponent<Dna>().CalculateFitness(agent.GetComponent<Agent>().GetTotalMoves());
+        }
+        
         // Sort by fitness
         _population = _population.OrderByDescending(a => a.GetComponent<Dna>().fitness).ToList();
         _bestFitnessLastGen = _population[0].GetComponent<Dna>().fitness;
         _averageFitnessLastGen = _population.Average(a => a.GetComponent<Dna>().fitness);
         
-        // Record data for export
-        _bestFitnessHistory.Add(_bestFitnessLastGen);
-        _averageFitnessHistory.Add(_averageFitnessLastGen);
-        
-        // Export at generation 100
-        if (_currentGeneration == 100)
-        {
-            ExportData();
-        }
+        // Store generation so I can import an excel
+        _generationHistory.Add(new GenerationData(_currentGeneration, _bestFitnessLastGen, _averageFitnessLastGen));
         
         List<GameObject> newPopulation = new List<GameObject>();
         
-        // ELITISM: Keep the best N agents (exact copies)
+        // ELITISM: Keep the best N agents
         for (int i = 0; i < eliteCount && i < _population.Count; i++)
         {
             GameObject elite = Instantiate(agentPrefab, spawnPosition.position, Quaternion.identity);
@@ -85,14 +90,12 @@ public class PopulationManager : MonoBehaviour
             eliteDna.InitData();
             
             Dna bestDna = _population[i].GetComponent<Dna>();
-            
-            // Copy the neural network weights from the best agent
-            eliteDna.bunnyBrain.CopyWeights(bestDna.bunnyBrain);
-            
+            eliteDna.stepSize = bestDna.stepSize;
+            System.Array.Copy(bestDna.directions, eliteDna.directions, eliteDna.directions.Length);
             eliteDna.fitness = 0;
-
-            // Mark elite agents with green color
-            elite.GetComponent<SpriteRenderer>().color = Color.green;
+            
+            elite.GetComponent<SpriteRenderer>().color = Color.cyan;
+            eliteDna.isElite = true;
             
             newPopulation.Add(elite);
         }
@@ -100,32 +103,26 @@ public class PopulationManager : MonoBehaviour
         // Create children for the rest of the population
         while (newPopulation.Count < populationSize)
         {
-            // Tournament selection for parent diversity
+            // Tournament selection for better parent diversity
             GameObject parent1 = TournamentSelection();
             GameObject parent2 = TournamentSelection();
             
-            // Create child through crossover
             GameObject child = Crossover(parent1, parent2);
-            
-            // Mutate the child
             child.GetComponent<Dna>().Mutate(mutationRate);
             
             newPopulation.Add(child);
         }
-        
-        // Clean up old population
-        foreach (GameObject agent in _population)
-        {
-            Destroy(agent);
-        }
+
+        Clean();
         
         _population = newPopulation;
         _currentGeneration++;
         _timer = 0f;
     }
     
-
-    private GameObject TournamentSelection(int tournamentSize = 5)
+    // Tournament selection: pick best from random sample
+    // ReSharper disable Unity.PerformanceAnalysis
+    private GameObject TournamentSelection(int tournamentSize = 4)
     {
         GameObject best = _population[Random.Range(0, _population.Count)];
         float bestFitness = best.GetComponent<Dna>().fitness;
@@ -145,7 +142,7 @@ public class PopulationManager : MonoBehaviour
         return best;
     }
     
-
+    // ReSharper disable Unity.PerformanceAnalysis
     private GameObject Crossover(GameObject parent1, GameObject parent2)
     {
         GameObject child = Instantiate(agentPrefab, spawnPosition.position, Quaternion.identity);
@@ -155,43 +152,105 @@ public class PopulationManager : MonoBehaviour
         Dna parent1Dna = parent1.GetComponent<Dna>();
         Dna parent2Dna = parent2.GetComponent<Dna>();
         
-        // Crossover neural network weights
-        childDna.bunnyBrain.CrossoverFrom(parent1Dna.bunnyBrain, parent2Dna.bunnyBrain);
+        int length = childDna.directions.Length;  
+        
+        int point1 = Random.Range(0, length);
+        int point2 = Random.Range(0, length);
+        
+        if (point1 > point2)
+        {
+            (point1, point2) = (point2, point1);
+        }
+        
+        for (int j = 0; j < length; j++)
+        {
+            if (j >= point1 && j <= point2)
+            {
+                childDna.directions[j] = parent1Dna.directions[j];
+            }
+            else
+            {
+                childDna.directions[j] = parent2Dna.directions[j];
+            }
+        }
         
         return child;
     }
 
-    private void UpdateDebugText()
+    private void Clean()
     {
-        float currentBestFitness = _population.Count > 0 
-            ? _population.Max(a => a.GetComponent<Dna>().fitness) 
-            : 0f;
-        
-        debugText.text = $"Generation: {_currentGeneration}\n" +
-                         $"Time: {generationTime - _timer:F1}s\n" +
-                         $"Best Fitness (Current): {currentBestFitness:F1}\n" +
-                         $"Best Fitness (Last Gen): {_bestFitnessLastGen:F1}\n" +
-                         $"Avg Fitness (Last Gen): {_averageFitnessLastGen:F1}\n" +
-                         $"Population Size: {populationSize}\n" +
-                         $"Speed x{_speedSlider.value:F1}"; 
+        foreach (GameObject agent in _population)
+        {
+            Destroy(agent);
+        }
 
-        Time.timeScale = _speedSlider.value;
-        
+        if (predators.Length > 0)
+        {
+            foreach (Predator predator in predators)
+            {
+                predator.Reset();
+            }
+        }
+
+    }
+
+    public int GetCurrentGeneration() => _currentGeneration;
+    
+    public float GetTimeRemaining() => generationTime - _timer;
+    
+    public float GetMutationRate()  => mutationRate;
+    
+    public float GetBestFitnessLastGen() => _bestFitnessLastGen;
+    
+    public float GetAverageFitnessLastGen() => _averageFitnessLastGen;
+    
+    public int GetPopulationSize() => populationSize;
+    
+    public void ToggleEliteOnly(bool showOnlyElites)
+    {
+        foreach (GameObject agent in _population)
+        {
+            Dna dna = agent.GetComponent<Dna>();
+            SpriteRenderer sr = agent.GetComponent<SpriteRenderer>();
+            
+            if (showOnlyElites)
+            {
+                sr.enabled = dna.isElite;
+            }
+            else
+            {
+                sr.enabled = true;
+            }
+        }
     }
     
-    private void ExportData()
+    public void ExportToCSV()
     {
-        StringBuilder csv = new StringBuilder();
-        csv.AppendLine("Generation,Best Fitness,Average Fitness");
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string filename = $"GeneticAlgorithm_Export_{timestamp}.csv";
+        string filepath = System.IO.Path.Combine(Application.dataPath, filename);
         
-        for (int i = 0; i < _bestFitnessHistory.Count; i++)
+        using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filepath))
         {
-            csv.AppendLine($"{i + 1},{_bestFitnessHistory[i]:F2},{_averageFitnessHistory[i]:F2}");
+            // Write simulation parameters
+            writer.WriteLine("SIMULATION PARAMETERS");
+            writer.WriteLine($"Population Size,{populationSize}");
+            writer.WriteLine($"Mutation Rate,{mutationRate}");
+            writer.WriteLine($"Generation Time (seconds),{generationTime}");
+            writer.WriteLine($"Elite Count,{eliteCount}");
+            writer.WriteLine();
+            
+            // Write generation data header
+            writer.WriteLine("GENERATION DATA");
+            writer.WriteLine("Generation,Best Fitness,Average Fitness");
+            
+            // Write each generation's data
+            foreach (GenerationData data in _generationHistory)
+            {
+                writer.WriteLine($"{data.generation},{data.bestFitness},{data.averageFitness}");
+            }
         }
         
-        string path = Path.Combine(Application.dataPath, "generation_data.csv");
-        File.WriteAllText(path, csv.ToString());
-        
-        Debug.Log($"Data exported to: {path}");
+        Debug.Log($"CSV exported successfully to: {filepath}");
     }
 }

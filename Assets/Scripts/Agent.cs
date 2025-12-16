@@ -1,97 +1,48 @@
+using System;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    private Dna dna;
+    private Dna _dna;
+    private int _moveIndex = 0;
+    private bool _isActive = true;
     
-    private bool isActive = true;
-    private float hungerDecay = 5f;
-    private float healthDecreaseRate = 10f;
-    private float timer = 0f;
-    private float timeToMove = 0.01f; // SECONDS
-
-    private Vector2 moveDirection;
+    private float _stepTimer = 0f;
+    [SerializeField] private float stepDuration = 0.1f; // seconds per step
     
-    // Vision data 
-    private float[] visionData;
     private void Start()    
     {
-        dna = GetComponent<Dna>();
-        visionData = new float[dna.visionDirections.Length];
+        _dna = GetComponent<Dna>();
     }
 
     private void Update()
     {
-        if (!isActive)
-            return;
+        if (!_isActive) return;
 
-        timer += Time.fixedDeltaTime;
-        HealthManagement();
-    
-        if (timer >= timeToMove)
+        _stepTimer += Time.deltaTime;
+        
+        if (_stepTimer >= stepDuration)
         {
-            // Perform vision check before moving
-            PerformVisionCheck();
-            
-            float[] input =
-            {
-                visionData[0], 
-                visionData[1], 
-                visionData[2],
-                visionData[3],
-                dna.hunger / 100,
-                dna.health / 100
-            };
-            
-            
-            int direction = dna.ChooseDirection(input);
-        
-            moveDirection = Dna.possibleDirections[direction] * dna.stepSize;
-            transform.Translate(moveDirection);
-        
-            dna.movesTaken.Add(moveDirection);
-            timer = 0f;
-        }
-    }
+            _stepTimer = 0f;
 
-    private void PerformVisionCheck()
-    {
-        for (int i = 0; i < dna.visionDirections.Length; i++)
-        {
-            Vector2 rayOrigin = transform.position;
-            Vector2 rayDirection = dna.visionDirections[i];
-        
-            RaycastHit2D[] hits = Physics2D.RaycastAll(rayOrigin, rayDirection, dna.visionRange);
-        
-            RaycastHit2D hit = default;
-            foreach (var h in hits)
+            if (_moveIndex < _dna.directions.Length)
             {
-                // Skip self
-                if (h.collider.gameObject == gameObject)
-                    continue;
+                transform.Translate(_dna.directions[_moveIndex] * _dna.stepSize);
                 
-                hit = h;
-                break; 
-            }
-        
-            if (hit.collider)
-            {
-                if (hit.collider.CompareTag("food"))
-                {
-                    visionData[i] = 1f;
-                }
-                else if (hit.collider.CompareTag("negative") || hit.collider.CompareTag("poisson"))
-                {
-                    visionData[i] = -1f;
-                }
-                else
-                {
-                    visionData[i] = 0f;
-                }
+                // I am converting them to cell size so they get rewarded for exploring the world
+                
+                Vector2 pos = new Vector2(
+                    Mathf.Floor(transform.position.x/2) * 2,
+                    Mathf.Floor(transform.position.y/2) * 2
+                );
+                
+                _dna.explorationDone.Add(pos);
+                
+                _moveIndex++;
             }
             else
             {
-                visionData[i] = 0f;
+                _isActive = false;
             }
         }
     }
@@ -100,103 +51,26 @@ public class Agent : MonoBehaviour
     {
         if (other.CompareTag("food"))
         {
-            GrabbedFood();
+            _dna.foodEaten++;
+
+            if (!_dna.firstFood)
+            {
+                _dna.firstFood = true;
+                _dna.stepsToFirstFood = _moveIndex;
+            }
+            
         } else if (other.CompareTag("negative"))
         {
-            InstaDead();
-        } else if (other.CompareTag("poisson"))
-        {
-            GrabbedPoison();
+            _dna.hasDied = true;
+            _isActive = false;
+            GetComponent<SpriteRenderer>().color = Color.red;
         }
+
     }
 
-    private void HealthManagement()
+    public int GetTotalMoves()
     {
-        dna.hunger -= hungerDecay * Time.fixedDeltaTime;
-
-        if (dna.health > 0)
-        {
-            dna.fitness += 0.5f * Time.fixedDeltaTime; 
-        }
-        
-        if (dna.hunger <= 0f)
-        {
-            dna.hunger = 0f;
-        }
-
-        if (dna.hunger < dna.GetMaxHunger()/2)
-        {
-            dna.health -= healthDecreaseRate * Time.fixedDeltaTime;
-        }
-
-        if (dna.health <= 0)
-        {
-            dna.fitness -= 100;
-            isActive = false;
-            gameObject.GetComponent<SpriteRenderer>().color = Color.red;
-        }
-    }
-
-    private void GrabbedFood()
-    {
-        dna.hunger += 100f;
-        dna.health += 100f;
-        dna.fitness += 50f;
-
-        if (dna.hunger > dna.GetMaxHunger())
-        {
-            dna.hunger = dna.GetMaxHunger();
-        }
-
-        if (dna.health > dna.GetMaxHealth())
-        {
-            dna.health = dna.GetMaxHealth();
-        }
-    }
-
-    private void GrabbedPoison()
-    {
-        dna.hunger -= 5f;
-        dna.health -= 5f;
-        dna.fitness -= 10;
-
-        if (dna.hunger < 0)
-        {
-            dna.hunger = 0;
-        }
-
-        if (dna.health < 0)
-        {
-            dna.health = 0;
-        }
-    }
-
-    private void InstaDead()
-    {
-        dna.health = 0f;   
-        dna.fitness -= 100;
+        return _moveIndex;
     }
     
-    public void ResetAgent()
-    {
-        timer = 0f;  
-        dna.fitness = 0;
-        dna.health = dna.GetMaxHealth();
-        dna.hunger = dna.GetMaxHunger();
-        isActive = true;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (dna == null)
-            return;
-        
-        Gizmos.color = Color.cyan;
-        foreach (Vector2 dir in dna.visionDirections)
-        {
-            Vector2 start = transform.position;
-            Vector2 end = start + dir * dna.visionRange;
-            Gizmos.DrawLine(start, end);
-        }
-    }
 }
