@@ -23,8 +23,6 @@ public class PopulationManager : MonoBehaviour
     private int _averageFitnessSteps = 0;
     private int _bestFitnessFoodCount = 0;
     private int _averageFitnessFoodCount = 0;
-    private int _bestFitnessDead = 0;
-    private int _averageFitnessDead = 0;
 
     private List<GenerationData> _generationHistory = new List<GenerationData>();
     
@@ -102,9 +100,6 @@ public class PopulationManager : MonoBehaviour
         _bestFitnessFoodCount = _population[0].GetComponent<Dna>().foodEaten;
         _averageFitnessFoodCount = (int)_population.Average(a => a.GetComponent<Dna>().foodEaten);
         
-        _bestFitnessDead = _population[0].GetComponent<Dna>().hasDied ? 1 : 0;
-        _averageFitnessDead = (int)_population.Average(a => a.GetComponent<Dna>().hasDied ? 1 : 0);
-        
         _generationHistory.Add(new GenerationData(
             _currentGeneration,
             _bestFitnessLastGen,
@@ -125,7 +120,6 @@ public class PopulationManager : MonoBehaviour
             eliteDna.InitData();
             
             Dna bestDna = _population[i].GetComponent<Dna>();
-            eliteDna.stepSize = bestDna.stepSize;
             System.Array.Copy(bestDna.directions, eliteDna.directions, eliteDna.directions.Length);
             eliteDna.fitness = 0;
             
@@ -248,13 +242,13 @@ public class PopulationManager : MonoBehaviour
         }
     }
     
+    // Getters for showing settings 
     public int GetCurrentGeneration() => _currentGeneration; 
     public float GetTimeRemaining() => generationTime - _timer; 
     public float GetMutationRate() => mutationRate; 
     public float GetBestFitnessLastGen() => _bestFitnessLastGen; 
     public float GetAverageFitnessLastGen() => _averageFitnessLastGen; 
     public int GetPopulationSize() => populationSize;
-
     public void ToggleEliteOnly(bool showOnlyElites)
     {
         foreach (GameObject agent in _population)

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BounceBehavior
   m_EditorClassIdentifier: Febucci.TextAnimator.Runtime::Febucci.UI.Effects.BounceBehavior
   tagID: bounce
-  baseAmplitude: 5
-  baseFrequency: 0.5
-  baseWaveSize: 0.01
+  baseAmplitude: 1.9
+  baseFrequency: 0.58
+  baseWaveSize: 0.049

@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Main Menu.unity
+    guid: c5e7ea54cd5a2452ab1b64742cdac825
+  - enabled: 1
+    path: Assets/Scenes/Horizontal.unity
+    guid: 978dd76701ec54a92bc7f9129ff252db
+  - enabled: 1
     path: Assets/Scenes/Bridge World.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/U shape.unity
+    guid: f3c732f0279d146078091307644930e0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

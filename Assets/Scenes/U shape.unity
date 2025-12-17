@@ -15197,7 +15197,7 @@ MonoBehaviour:
   populationSize: 100
   spawnPosition: {fileID: 968107395}
   generationTime: 60
-  mutationRate: 0.1
+  mutationRate: 0.15
   eliteCount: 2
 --- !u!4 &968107395
 Transform:

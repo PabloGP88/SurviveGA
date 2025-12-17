@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Settings : MonoBehaviour
@@ -42,6 +43,12 @@ public class Settings : MonoBehaviour
         {
             _settingsPanelActive = !_settingsPanelActive;
         }
+        
+        if (Keyboard.current.ctrlKey.wasPressedThisFrame)
+        {
+            SceneManager.LoadScene("Main Menu");
+        }
+
     
         UpdateDebugText();
         UpdateTimeScale();
