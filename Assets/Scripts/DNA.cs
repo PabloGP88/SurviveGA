@@ -10,7 +10,6 @@ public class Dna : MonoBehaviour
     public float fitness;
     
     public int foodEaten = 0;
-    public int poissonEaten = 0;
 
     public int stepsToFirstFood = 0;
     public bool firstFood = false;

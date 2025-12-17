@@ -6,12 +6,14 @@ public class Agent : MonoBehaviour
     private Dna _dna;
     private int _moveIndex = 0;
     private bool _isActive = true;
+    private Vector2 _startPosition;
     
     private float _stepTimer = 0f;
     [SerializeField] private float stepDuration = 0.1f; // seconds per step
     
     private void Start()    
     {
+        _startPosition = transform.position;
         _dna = GetComponent<Dna>();
     }
 
@@ -71,6 +73,20 @@ public class Agent : MonoBehaviour
     public int GetTotalMoves()
     {
         return _moveIndex;
+    }
+
+    public void ResetAgent()
+    {
+        _dna.foodEaten = 0;
+        _dna.firstFood = false;
+        _dna.stepsToFirstFood = 0;
+        _dna.explorationDone.Clear();
+        _dna.hasDied = false;
+        _dna.firstFood = false;
+        _dna.fitness = 0;
+        _isActive = true;
+        _moveIndex = 0;
+        transform.position = _startPosition;
     }
     
 }

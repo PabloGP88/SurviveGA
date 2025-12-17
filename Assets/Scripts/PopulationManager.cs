@@ -19,8 +19,13 @@ public class PopulationManager : MonoBehaviour
     private float _timer = 0f;
     private float _bestFitnessLastGen = 0f;
     private float _averageFitnessLastGen = 0f;
-    
-    // Track statistics for each generation
+    private int _bestFitnessSteps = 0;
+    private int _averageFitnessSteps = 0;
+    private int _bestFitnessFoodCount = 0;
+    private int _averageFitnessFoodCount = 0;
+    private int _bestFitnessDead = 0;
+    private int _averageFitnessDead = 0;
+
     private List<GenerationData> _generationHistory = new List<GenerationData>();
     
     [System.Serializable]
@@ -29,12 +34,28 @@ public class PopulationManager : MonoBehaviour
         public int generation;
         public float bestFitness;
         public float averageFitness;
-        
-        public GenerationData(int gen, float best, float avg)
+        public int bestStepsToFirstFood;
+        public int averageStepsToFirstFood;
+        public int bestFoodCount;
+        public int averageFoodCount;
+
+        public GenerationData(
+            int gen,
+            float best,
+            float avg,
+            int stepsBest,
+            int stepsAverage,
+            int bestFood,
+            int averageFood
+            )
         {
             generation = gen;
             bestFitness = best;
             averageFitness = avg;
+            bestStepsToFirstFood = stepsBest;
+            averageStepsToFirstFood = stepsAverage;
+            bestFoodCount = bestFood;
+            averageFoodCount = averageFood;
         }
     }
 
@@ -63,26 +84,40 @@ public class PopulationManager : MonoBehaviour
         }
     }
 
-    // ReSharper disable Unity.PerformanceAnalysis
     private void NextGeneration()
     {
-        // Calculate fitness 
         foreach (GameObject agent in _population)
         {
             agent.GetComponent<Dna>().CalculateFitness(agent.GetComponent<Agent>().GetTotalMoves());
         }
         
-        // Sort by fitness
         _population = _population.OrderByDescending(a => a.GetComponent<Dna>().fitness).ToList();
+        
         _bestFitnessLastGen = _population[0].GetComponent<Dna>().fitness;
         _averageFitnessLastGen = _population.Average(a => a.GetComponent<Dna>().fitness);
         
-        // Store generation so I can import an excel
-        _generationHistory.Add(new GenerationData(_currentGeneration, _bestFitnessLastGen, _averageFitnessLastGen));
+        _bestFitnessSteps = _population[0].GetComponent<Dna>().stepsToFirstFood;
+        _averageFitnessSteps = (int)_population.Average(a => a.GetComponent<Dna>().stepsToFirstFood);
+
+        _bestFitnessFoodCount = _population[0].GetComponent<Dna>().foodEaten;
+        _averageFitnessFoodCount = (int)_population.Average(a => a.GetComponent<Dna>().foodEaten);
+        
+        _bestFitnessDead = _population[0].GetComponent<Dna>().hasDied ? 1 : 0;
+        _averageFitnessDead = (int)_population.Average(a => a.GetComponent<Dna>().hasDied ? 1 : 0);
+        
+        _generationHistory.Add(new GenerationData(
+            _currentGeneration,
+            _bestFitnessLastGen,
+            _averageFitnessLastGen,
+            _bestFitnessSteps,
+            _averageFitnessSteps,
+            _bestFitnessFoodCount,
+            _averageFitnessFoodCount
+            )
+        );
         
         List<GameObject> newPopulation = new List<GameObject>();
         
-        // ELITISM: Keep the best N agents
         for (int i = 0; i < eliteCount && i < _population.Count; i++)
         {
             GameObject elite = Instantiate(agentPrefab, spawnPosition.position, Quaternion.identity);
@@ -100,10 +135,8 @@ public class PopulationManager : MonoBehaviour
             newPopulation.Add(elite);
         }
         
-        // Create children for the rest of the population
         while (newPopulation.Count < populationSize)
         {
-            // Tournament selection for better parent diversity
             GameObject parent1 = TournamentSelection();
             GameObject parent2 = TournamentSelection();
             
@@ -120,8 +153,6 @@ public class PopulationManager : MonoBehaviour
         _timer = 0f;
     }
     
-    // Tournament selection: pick best from random sample
-    // ReSharper disable Unity.PerformanceAnalysis
     private GameObject TournamentSelection(int tournamentSize = 4)
     {
         GameObject best = _population[Random.Range(0, _population.Count)];
@@ -142,7 +173,29 @@ public class PopulationManager : MonoBehaviour
         return best;
     }
     
-    // ReSharper disable Unity.PerformanceAnalysis
+    private GameObject RouletteWheelSelection()
+    {
+        float totalFitness = 0f;
+        foreach (GameObject agent in _population)
+        {
+            totalFitness += agent.GetComponent<Dna>().fitness;
+        }
+        
+        float randomValue = Random.Range(0f, totalFitness);
+        float wheelSpin = 0f;
+
+        foreach (GameObject agent in _population)
+        {
+            wheelSpin += agent.GetComponent<Dna>().fitness;
+            if (wheelSpin >= randomValue)
+            {
+                return agent;
+            }
+        }
+        
+        return _population[_population.Count - 1];
+    }
+    
     private GameObject Crossover(GameObject parent1, GameObject parent2)
     {
         GameObject child = Instantiate(agentPrefab, spawnPosition.position, Quaternion.identity);
@@ -153,7 +206,6 @@ public class PopulationManager : MonoBehaviour
         Dna parent2Dna = parent2.GetComponent<Dna>();
         
         int length = childDna.directions.Length;  
-        
         int point1 = Random.Range(0, length);
         int point2 = Random.Range(0, length);
         
@@ -164,14 +216,17 @@ public class PopulationManager : MonoBehaviour
         
         for (int j = 0; j < length; j++)
         {
-            if (j >= point1 && j <= point2)
-            {
-                childDna.directions[j] = parent1Dna.directions[j];
-            }
-            else
-            {
-                childDna.directions[j] = parent2Dna.directions[j];
-            }
+            
+            //  // Two point
+            // childDna.directions[j] = (j >= point1 && j <= point2)
+            //     ? parent1Dna.directions[j]
+            //     : parent2Dna.directions[j];
+            
+            //Uniform
+             childDna.directions[j] = (j%2  == 0)
+                 ? parent1Dna.directions[j]
+                 : parent2Dna.directions[j];
+            
         }
         
         return child;
@@ -191,39 +246,31 @@ public class PopulationManager : MonoBehaviour
                 predator.Reset();
             }
         }
-
     }
-
-    public int GetCurrentGeneration() => _currentGeneration;
     
-    public float GetTimeRemaining() => generationTime - _timer;
-    
-    public float GetMutationRate()  => mutationRate;
-    
-    public float GetBestFitnessLastGen() => _bestFitnessLastGen;
-    
-    public float GetAverageFitnessLastGen() => _averageFitnessLastGen;
-    
+    public int GetCurrentGeneration() => _currentGeneration; 
+    public float GetTimeRemaining() => generationTime - _timer; 
+    public float GetMutationRate() => mutationRate; 
+    public float GetBestFitnessLastGen() => _bestFitnessLastGen; 
+    public float GetAverageFitnessLastGen() => _averageFitnessLastGen; 
     public int GetPopulationSize() => populationSize;
-    
+
     public void ToggleEliteOnly(bool showOnlyElites)
     {
         foreach (GameObject agent in _population)
         {
             Dna dna = agent.GetComponent<Dna>();
-            SpriteRenderer sr = agent.GetComponent<SpriteRenderer>();
-            
+            SpriteRenderer sprite = agent.GetComponent<SpriteRenderer>();
             if (showOnlyElites)
             {
-                sr.enabled = dna.isElite;
+                sprite.enabled = dna.isElite;
             }
             else
             {
-                sr.enabled = true;
+                sprite.enabled = true;
             }
         }
     }
-    
     public void ExportToCSV()
     {
         string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
@@ -232,22 +279,25 @@ public class PopulationManager : MonoBehaviour
         
         using (System.IO.StreamWriter writer = new System.IO.StreamWriter(filepath))
         {
-            // Write simulation parameters
-            writer.WriteLine("SIMULATION PARAMETERS");
-            writer.WriteLine($"Population Size,{populationSize}");
-            writer.WriteLine($"Mutation Rate,{mutationRate}");
-            writer.WriteLine($"Generation Time (seconds),{generationTime}");
-            writer.WriteLine($"Elite Count,{eliteCount}");
-            writer.WriteLine();
+            writer.WriteLine(
+                "Generation," +
+                "BestFitness,AverageFitness," +
+                "BestStepsToFirstFood,AverageStepsToFirstFood," +
+                "BestFoodCount,AverageFoodCount," +
+                "BestAgentDied"
+            );
             
-            // Write generation data header
-            writer.WriteLine("GENERATION DATA");
-            writer.WriteLine("Generation,Best Fitness,Average Fitness");
-            
-            // Write each generation's data
             foreach (GenerationData data in _generationHistory)
             {
-                writer.WriteLine($"{data.generation},{data.bestFitness},{data.averageFitness}");
+                writer.WriteLine(
+                    $"{data.generation}," +
+                    $"{data.bestFitness}," +
+                    $"{data.averageFitness}," +
+                    $"{data.bestStepsToFirstFood}," +
+                    $"{data.averageStepsToFirstFood}," +
+                    $"{data.bestFoodCount}," +
+                    $"{data.averageFoodCount}," 
+                );
             }
         }
         
