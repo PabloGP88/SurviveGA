@@ -113,6 +113,7 @@ public class PopulationManager : MonoBehaviour
         
         List<GameObject> newPopulation = new List<GameObject>();
         
+        // Elitism to ensure population cannot get worse 
         for (int i = 0; i < eliteCount && i < _population.Count; i++)
         {
             GameObject elite = Instantiate(agentPrefab, spawnPosition.position, Quaternion.identity);
@@ -167,6 +168,7 @@ public class PopulationManager : MonoBehaviour
         return best;
     }
     
+    // Added RouletteWheel as well but during my test, it not worked better than tournament
     private GameObject RouletteWheelSelection()
     {
         float totalFitness = 0f;
